@@ -21,9 +21,10 @@
     "sourceMap": true,
 
     "baseUrl": "./",
-		"outDir": "./lib"
+		"outDir": "./lib",
+    "declaration": true
   },
-	
+
 	"include": [
 		"src/**/*"
 	],
