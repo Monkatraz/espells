@@ -25,6 +25,11 @@
     "not dead",
     "not ie > 0"
   ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Monkatraz/espells.git"
+  },
+  "bugs": "https://github.com/Monkatraz/espells/issues",
   "dependencies": {
     "iterare": "^1.2.1"
   },
