@@ -1,8 +1,8 @@
 # Espells: Hunspell ported to Python ported to JavaScript
 
-Pure JS/TS spellchecker, using Hunspell dictionaries. Direct port of the [Spylls](https://github.com/zverok/spylls) library. Without zverok's (the author of Spylls) work, this library couldn't exist.
+Pure JS/TS spellchecker, using Hunspell dictionaries. Direct port of the [Spylls](https://github.com/zverok/spylls) library. Without [zverok's](https://github.com/zverok) (the author of Spylls) work, this library couldn't exist.
 
-Espells makes no use of features that would prevent it from running within Node, a browser, or even a web worker. Effectively, it's just a pure spellchecking library and it's up to you to connect it to whatever interface you want.
+Espells makes no use of platform specific features that would prevent it from running within Node, a browser, or even a web worker. Effectively, it's just a pure spellchecking library and it's up to you to connect it to whatever interface you want.
 
 Espells was created as part of my work on [Wikijump](https://github.com/scpwiki/wikijump/).
 
@@ -29,7 +29,7 @@ You can get dictionaries very easily from NPM as well, see [here for that](https
 
 ## Usage
 
-Usage of Espells is incredibly simple. It's primary interface is the `Espells` class exported by the module, which can be instantiated like so:
+Usage of Espells is incredibly simple. Its primary interface is the `Espells` class exported by the module, which can be instantiated like so:
 
 ```ts
 import { Espells } from "espells"
@@ -56,7 +56,7 @@ Espells is ready to use immediately. You can spellcheck a word like so:
 const { correct, forbidden, warn } = spellchecker.lookup("word")
 ```
 
-The `forbidden` and `warn` properties are special properties a "correctly spelled" word may have in Hunspell. Forbidden words are usually correct syntax wise, but aren't really considered real words, like "decreated". A word with `warn: true` is _technically_ a correctly spelled word, but usually usage of that specific word is a mistake.
+The `forbidden` and `warn` properties are special properties a "correctly spelled" word may have in Hunspell. Forbidden words are usually correct syntax wise, but aren't really considered real words, like "decreated". A word with `warn: true` is _technically_ a correctly spelled word, but usage of that specific word is usually a mistake.
 
 Getting suggestions is simple as well:
 
@@ -71,7 +71,7 @@ There are quite a few other methods made available, specifically: `addDictionary
 
 Espells is welcome to PRs, issues, etc. Any contributions must maintain "parity" with Hunspell, although there is obviously some nuance to that idea.
 
-If you want to understand how Espells work, the source files are _fully_ documented. Additionally, you can take a look at [Spyll's documentation](https://spylls.readthedocs.io/en/latest/) for additional perspective and reasoning about certain technical details.
+If you want to understand how Espells work, the source files are _fully_ documented. Additionally, you can take a look at [Spylls' documentation](https://spylls.readthedocs.io/en/latest/) for additional perspective and reasoning about certain technical details.
 
 ### Building
 
