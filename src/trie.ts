@@ -72,6 +72,11 @@ export class Trie<T> {
       current = current.get(word[i])! as TrieMap<T>
     }
 
+    // fully stripped word
+    if (current.has(END_WORD_SYMBOL)) {
+      segments.push(current.get(END_WORD_SYMBOL) as T)
+    }
+
     if (add) {
       return current
     }
