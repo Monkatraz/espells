@@ -81,9 +81,9 @@ export class Casing {
     switch (captype) {
       case CapType.HUH:
       case CapType.NO:      return [captype, word]
-      case CapType.INIT:    return [captype, ...this.lower(word)]
-      case CapType.HUHINIT: return [captype, ...this.lowerfirst(word)]
-      case CapType.ALL:     return [captype, ...this.lower(word), ...this.capitalize(word)]
+      case CapType.INIT:    return [captype, word, ...this.lower(word)]
+      case CapType.HUHINIT: return [captype, word, ...this.lowerfirst(word)]
+      case CapType.ALL:     return [captype, word, ...this.lower(word), ...this.capitalize(word)]
     }
   }
 
