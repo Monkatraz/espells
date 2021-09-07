@@ -120,9 +120,20 @@ export abstract class Affix {
    *   effect, meaning that this affix's flags *cannot* be found in this set.
    */
   compatible(flags: Flags, forbidden?: Flags) {
+    // special case of no required flags
+    if (flags.size === 0) {
+      if (forbidden) {
+        for (const flag of this.flags) {
+          if (forbidden.has(flag)) return false
+        }
+      }
+      return true
+    }
+
     for (const flag of this.flags) {
       if (!flags.has(flag) || forbidden?.has(flag)) return false
     }
+
     return true
   }
 }
