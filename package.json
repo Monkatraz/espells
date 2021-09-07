@@ -14,7 +14,8 @@
   ],
   "scripts": {
     "build": "tsc",
-    "lint": "eslint \"./src/**/*.ts\" --fix && prettier --write --ignore-unknown \"src/**\""
+    "lint": "eslint \"./src/**/*.ts\" --fix && prettier --write --ignore-unknown \"src/**\"",
+    "test": "tsc && node --experimental-specifier-resolution=node tests/tests"
   },
   "type": "module",
   "main": "lib/index.js",
@@ -45,9 +46,11 @@
     "eslint-plugin-import": "^2.24.2",
     "eslint-plugin-regexp": "^1.1.0",
     "eslint-plugin-tsdoc": "^0.2.14",
+    "globby": "^11.0.4",
     "prettier": "^2.3.2",
     "prettier-plugin-jsdoc": "^0.3.24",
     "prettier-plugin-organize-imports": "^2.3.3",
-    "typescript": "^4.4.2"
+    "typescript": "^4.4.2",
+    "uvu": "^0.5.1"
   }
 }
