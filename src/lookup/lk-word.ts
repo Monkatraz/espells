@@ -24,6 +24,15 @@ export class LKWord {
   }
 
   /**
+   * Reuses this instance, but changes the compound position.
+   *
+   * @param pos - The new compound position.
+   */
+  shift(pos: CompoundPos) {
+    return new LKWord(this.word, this.type, pos)
+  }
+
+  /**
    * Returns a new {@link LKWord} from a section of this word.
    *
    * @param from - The starting index of the section. Can be negative.

@@ -375,7 +375,7 @@ export class Lookup {
 
     if (depth) {
       for (const form of this.affixForms(
-        lkword,
+        lkword.shift(CompoundPos.END),
         { allowNoSuggest },
         { prefix: permitFlags, suffix: new Set(), forbidden: forbiddenFlags }
       )) {
