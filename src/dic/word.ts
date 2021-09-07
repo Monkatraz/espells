@@ -1,5 +1,5 @@
 import { iterate } from "iterare"
-import type { Aff, Flags } from "../aff"
+import type { Aff, Flag, Flags } from "../aff"
 import type { Prefix, Suffix } from "../aff/affix"
 import { RepPattern } from "../aff/rep-pattern"
 import { CapType, CONSTANTS as C } from "../constants"
@@ -112,6 +112,16 @@ export class Word {
 
       this.affixes = { prefixes, suffixes }
     }
+  }
+
+  /**
+   * Determines if this word has the given flag.
+   *
+   * @param flag - The flag to check for. Can be undefined, which will return false.
+   */
+  has(flag?: Flag) {
+    if (flag === undefined) return false
+    return this.flags?.has(flag) ?? false
   }
 
   /**

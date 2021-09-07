@@ -2,7 +2,6 @@ import { iterate } from "iterare"
 import type { Aff, Flag } from "../aff"
 import { CapType, CONSTANTS as C } from "../constants"
 import type { Reader } from "../reader"
-import { includes } from "../util"
 import { Word } from "./word"
 
 export { Word }
@@ -144,10 +143,11 @@ export class Dic {
   hasFlag(stem: string, flag?: Flag, all = false) {
     if (flag === undefined) return false
     for (const word of this.homonyms(stem)) {
-      const flagged = includes(flag, word.flags)
+      const flagged = word.has(flag)
       if (all && !flagged) return false
       if (!all && flagged) return true
     }
-    return false
+    // if we're looking for all and we've made it this far, then we're good
+    return all
   }
 }

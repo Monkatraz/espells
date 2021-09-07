@@ -202,7 +202,7 @@ export class Lookup {
           !withForbidden &&
           this.aff.FORBIDDENWORD &&
           (lkword.pos !== undefined || form.hasAffixes) &&
-          iterate(homonyms).some(({ flags }) => includes(this.aff.FORBIDDENWORD, flags))
+          iterate(homonyms).some(word => word.has(this.aff.FORBIDDENWORD))
         ) {
           return
         }
@@ -227,7 +227,7 @@ export class Lookup {
       }
 
       if (this.aff.casing.guess(lkword.word) === CapType.NO) {
-        for (const candidate of candidates(form, form.stem, true)) {
+        for (const candidate of candidates(form, form.stem)) {
           yield candidate
         }
       }
