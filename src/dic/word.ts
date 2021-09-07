@@ -1,4 +1,4 @@
-import iterate from "iterare"
+import { iterate } from "iterare"
 import type { Aff, Flags } from "../aff"
 import type { Prefix, Suffix } from "../aff/affix"
 import { RepPattern } from "../aff/rep-pattern"

@@ -1,4 +1,4 @@
-import iterate from "iterare"
+import { iterate } from "iterare"
 import type { LKFlags } from "."
 import type { Aff } from "../aff"
 import { CompoundPos } from "../constants"

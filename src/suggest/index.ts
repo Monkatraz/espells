@@ -1,4 +1,4 @@
-import iterate from "iterare"
+import { iterate } from "iterare"
 import type { Aff } from "../aff"
 import { CapType, CONSTANTS as C, GOOD_EDITS, SuggestionKind } from "../constants"
 import type { Dic } from "../dic"

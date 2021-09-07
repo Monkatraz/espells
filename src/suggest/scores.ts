@@ -1,4 +1,4 @@
-import iterate from "iterare"
+import { iterate } from "iterare"
 import { PriorityList } from "../plist"
 import { commonCharacters, lcslen, leftCommonSubstring, lowercase, ngram } from "../util"
 

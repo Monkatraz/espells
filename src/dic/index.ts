@@ -1,9 +1,11 @@
-import iterate from "iterare"
+import { iterate } from "iterare"
 import type { Aff, Flag } from "../aff"
 import { CapType, CONSTANTS as C } from "../constants"
 import type { Reader } from "../reader"
 import { includes } from "../util"
 import { Word } from "./word"
+
+export { Word }
 
 /** Hunspell dictionary data. */
 export class Dic {

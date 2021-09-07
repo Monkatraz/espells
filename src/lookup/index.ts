@@ -1,4 +1,4 @@
-import iterate from "iterare"
+import { iterate } from "iterare"
 import type { Aff, Flags } from "../aff"
 import type { CompoundRule } from "../aff/compound-rule"
 import { CapType, CompoundPos, CONSTANTS as C } from "../constants"

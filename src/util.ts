@@ -1,4 +1,4 @@
-import iterate from "iterare"
+import { iterate } from "iterare"
 import { CONSTANTS as C } from "./constants"
 
 /**

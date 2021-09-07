@@ -1,4 +1,4 @@
-import iterate from "iterare"
+import { iterate } from "iterare"
 import { intersect, product, re } from "../util"
 import type { Aff, Flags, FlagSet } from "./index"
 import type { Flag } from "./types"
