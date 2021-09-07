@@ -65,14 +65,6 @@ export const CONSTANTS = {
    */
   MAX_SUGGESTIONS: 15,
 
-  /**
-   * Types of "edits" to a misspelling that, if they result in a correct
-   * word, mean that their resultant suggestion is almost certainly what
-   * the misspelling was supposed to be and thus further suggestions
-   * shouldn't be generated.
-   */
-  GOOD_EDITS: ["spaceword", "uppercase", "replchars"] as string[],
-
   /** Maximum number of ngram "roots" (most similar words to a misspelling). */
   NGRAM_MAX_ROOTS: 100,
 
@@ -135,3 +127,37 @@ export enum CompoundPos {
   /** The compound segment is at the end of the word. */
   END
 }
+
+/** Kinds of suggestions, based on how they were attained. */
+export enum SuggestionKind {
+  CASE,
+  FORCEUCASE,
+  UPPERCASE,
+  REPLCHARS,
+  SPACEWORD,
+  MAPCHARS,
+  SWAPCHAR,
+  LONGSWAPCHAR,
+  BADCHARKEY,
+  EXTRACHAR,
+  FORGOTCHAR,
+  MOVECHAR,
+  BADCHAR,
+  DOUBLETWOCHARS,
+  TWOWORDS,
+  DASHES,
+  NGRAM,
+  PHONET
+}
+
+/**
+ * Types of "edits" to a misspelling that, if they result in a correct
+ * word, mean that their resultant suggestion is almost certainly what the
+ * misspelling was supposed to be and thus further suggestions shouldn't be
+ * generated.
+ */
+export const GOOD_EDITS = [
+  SuggestionKind.SPACEWORD,
+  SuggestionKind.REPLCHARS,
+  SuggestionKind.UPPERCASE
+]

@@ -1,6 +1,6 @@
 import iterate from "iterare"
 import type { Aff } from "../aff"
-import { CapType, CONSTANTS as C } from "../constants"
+import { CapType, CONSTANTS as C, GOOD_EDITS, SuggestionKind } from "../constants"
 import type { Dic } from "../dic"
 import type { Word } from "../dic/word"
 import type { Lookup } from "../lookup"
@@ -92,7 +92,9 @@ export class Suggest {
     if (this.aff.FORCEUCASE && captype === CapType.NO) {
       for (const capitalized of this.aff.casing.capitalize(word)) {
         if (this.correct(capitalized)) {
-          const suggestion = handle(new Suggestion(capitalized, "forceucase"))
+          const suggestion = handle(
+            new Suggestion(capitalized, SuggestionKind.FORCEUCASE)
+          )
           if (suggestion) yield suggestion
           return
         }
@@ -105,7 +107,7 @@ export class Suggest {
       const variant = variants[idx]
 
       if (idx > 0 && this.correct(variant)) {
-        const suggestion = handle(new Suggestion(variant, "case"))
+        const suggestion = handle(new Suggestion(variant, SuggestionKind.CASE))
         if (suggestion) yield suggestion
       }
 
@@ -114,24 +116,24 @@ export class Suggest {
       for (const suggestion of this.edits(variant, handle, C.MAX_SUGGESTIONS)) {
         yield suggestion
 
-        goodEditsFound ||= C.GOOD_EDITS.includes(suggestion.kind)
+        goodEditsFound ||= GOOD_EDITS.includes(suggestion.kind)
 
         // prettier-ignore
         switch(suggestion.kind) {
-          case "uppercase":
-          case "replchars":
-          case "mapchars": {
+          case SuggestionKind.UPPERCASE:
+          case SuggestionKind.REPLCHARS:
+          case SuggestionKind.MAPCHARS: {
             noCompound = true
             break
           }
-          case "spaceword": return
+          case SuggestionKind.SPACEWORD: return
         }
       }
 
       if (!noCompound) {
         for (const suggestion of this.edits(word, handle, this.aff.MAXCPDSUGS, true)) {
           yield suggestion
-          goodEditsFound ||= C.GOOD_EDITS.includes(suggestion.kind)
+          goodEditsFound ||= GOOD_EDITS.includes(suggestion.kind)
         }
       }
 
@@ -149,7 +151,9 @@ export class Suggest {
                 suggestion.text,
                 ...chunks.slice(idx + 1)
               ].join("-")
-              if (this.lookup.check(candidate)) yield new Suggestion(candidate, "dashes")
+              if (this.lookup.check(candidate)) {
+                yield new Suggestion(candidate, SuggestionKind.DASHES)
+              }
             }
           }
         }
@@ -167,14 +171,17 @@ export class Suggest {
         if (ngram) {
           yield* iterate(ngram.finish())
             .take(this.aff.MAXNGRAMSUGS)
-            .map(suggestion => handle(new Suggestion(suggestion, "ngram"), true)!)
+            .map(
+              suggestion =>
+                handle(new Suggestion(suggestion, SuggestionKind.NGRAM), true)!
+            )
             .filter(suggestion => suggestion !== undefined)
         }
 
         if (phonet) {
           yield* iterate(phonet.finish())
             .take(C.MAX_PHONET_SUGGESTIONS)
-            .map(suggestion => handle(new Suggestion(suggestion, "phonet"))!)
+            .map(suggestion => handle(new Suggestion(suggestion, SuggestionKind.PHONET))!)
             .filter(suggestion => suggestion !== undefined)
         }
       }
@@ -296,43 +303,42 @@ export class Suggest {
    * @param word - The word to yield the permutations of.
    */
   private *permutations(word: string): Iterable<Suggestion | MultiWordSuggestion> {
-    yield new Suggestion(this.aff.casing.upper(word), "uppercase")
+    yield new Suggestion(this.aff.casing.upper(word), SuggestionKind.UPPERCASE)
 
     for (const suggestion of replchars(word, this.aff.REP)) {
       if (Array.isArray(suggestion)) {
-        yield new Suggestion(suggestion.join(" "), "replchars")
-        yield new MultiWordSuggestion(suggestion, "replchars", false)
+        yield new Suggestion(suggestion.join(" "), SuggestionKind.REPLCHARS)
+        yield new MultiWordSuggestion(suggestion, SuggestionKind.REPLCHARS, false)
       } else {
-        yield new Suggestion(suggestion, "replchars")
+        yield new Suggestion(suggestion, SuggestionKind.REPLCHARS)
       }
     }
 
     for (const words of twowords(word)) {
-      yield new Suggestion(words.join(" "), "spaceword")
-      if (this.dashes) yield new Suggestion(words.join("-"), "spaceword")
+      yield new Suggestion(words.join(" "), SuggestionKind.SPACEWORD)
+      if (this.dashes) yield new Suggestion(words.join("-"), SuggestionKind.SPACEWORD)
     }
 
-    yield* this.pmtFrom(mapchars(word, this.aff.MAP), "mapchars")
-
-    yield* this.pmtFrom(swapchar(word), "swapchar")
-
-    yield* this.pmtFrom(longswapchar(word), "longswapchar")
-
-    yield* this.pmtFrom(badcharkey(word, this.aff.KEY), "badcharkey")
-
-    yield* this.pmtFrom(extrachar(word), "extrachar")
-
-    yield* this.pmtFrom(forgotchar(word, this.aff.TRY), "forgotchar")
-
-    yield* this.pmtFrom(movechar(word), "movechar")
-
-    yield* this.pmtFrom(badchar(word, this.aff.TRY), "badchar")
-
-    yield* this.pmtFrom(doubletwochars(word), "doubletwochars")
+    // prettier-ignore
+    {
+      yield* this.pmtFrom(mapchars(word, this.aff.MAP),   SuggestionKind.MAPCHARS)
+      yield* this.pmtFrom(swapchar(word),                 SuggestionKind.SWAPCHAR)
+      yield* this.pmtFrom(longswapchar(word),             SuggestionKind.LONGSWAPCHAR)
+      yield* this.pmtFrom(badcharkey(word, this.aff.KEY), SuggestionKind.BADCHARKEY)
+      yield* this.pmtFrom(extrachar(word),                SuggestionKind.EXTRACHAR)
+      yield* this.pmtFrom(forgotchar(word, this.aff.TRY), SuggestionKind.FORGOTCHAR)
+      yield* this.pmtFrom(movechar(word),                 SuggestionKind.MOVECHAR)
+      yield* this.pmtFrom(badchar(word, this.aff.TRY),    SuggestionKind.BADCHAR)
+      yield* this.pmtFrom(doubletwochars(word),           SuggestionKind.DOUBLETWOCHARS)
+    }
 
     if (!this.aff.NOSPLITSUGS) {
       for (const suggestionPair of twowords(word)) {
-        yield new MultiWordSuggestion(suggestionPair, "twowords", this.dashes)
+        yield new MultiWordSuggestion(
+          suggestionPair,
+          SuggestionKind.TWOWORDS,
+          this.dashes
+        )
       }
     }
   }
@@ -356,9 +362,9 @@ export class Suggest {
    * Helper for yielding {@link Suggestion} instances from a iterator that
    * yields strings.
    */
-  private *pmtFrom(iter: Iterable<string>, name: string) {
+  private *pmtFrom(iter: Iterable<string>, kind: SuggestionKind) {
     for (const suggestion of iter) {
-      yield new Suggestion(suggestion, name)
+      yield new Suggestion(suggestion, kind)
     }
   }
 

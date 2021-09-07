@@ -1,10 +1,12 @@
+import type { SuggestionKind } from "../constants"
+
 /** The object that the {@link Suggest} class uses internally for tracking suggestions. */
 export class Suggestion {
   constructor(
     /** The actual suggested text. */
     public text: string,
-    /** Describes what actually generated this suggestion, using a string label. */
-    public kind: string
+    /** Describes what actually generated this suggestion. */
+    public kind: SuggestionKind
   ) {}
 
   /**
@@ -24,8 +26,8 @@ export class MultiWordSuggestion {
   constructor(
     /** The list of words that represents this suggestion. */
     public words: string[],
-    /** Describes what actually generated this suggestion, using a string label. */
-    public kind: string,
+    /** Describes what actually generated this suggestion. */
+    public kind: SuggestionKind,
     /**
      * If true, this suggestion is allowed to be given to the user with
      * dashes joining the words together.
