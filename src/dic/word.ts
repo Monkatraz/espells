@@ -1,4 +1,6 @@
+import iterate from "iterare"
 import type { Aff, Flags } from "../aff"
+import type { Prefix, Suffix } from "../aff/affix"
 import { RepPattern } from "../aff/rep-pattern"
 import { CapType, CONSTANTS as C } from "../constants"
 import { split } from "../util"
@@ -25,6 +27,12 @@ export class Word {
 
   /** Common misspellings for this word. */
   declare altSpellings?: Set<string>
+
+  /** The {@link Affix} instances that apply to this word. */
+  declare affixes?: {
+    prefixes: Set<Prefix>
+    suffixes: Set<Suffix>
+  }
 
   /**
    * @param line - The line from a `.dic` file to parse. Can also just be
@@ -85,5 +93,73 @@ export class Word {
         }
       }
     }
+
+    // precalculating the affixes here improves performance for ngram suggestions
+    if (this.flags) {
+      const prefixes = iterate(this.flags)
+        .filter(flag => aff.PFX.has(flag))
+        .map(flag => aff.PFX.get(flag)!)
+        .flatten()
+        .filter(prefix => prefix.relevant(this.stem))
+        .toSet()
+
+      const suffixes = iterate(this.flags)
+        .filter(flag => aff.SFX.has(flag))
+        .map(flag => aff.SFX.get(flag)!)
+        .flatten()
+        .filter(suffix => suffix.relevant(this.stem))
+        .toSet()
+
+      this.affixes = { prefixes, suffixes }
+    }
+  }
+
+  /**
+   * Returns the forms (permutations) of this {@link Word}, with all valid
+   * suffixes and prefixes.
+   *
+   * @param similarTo - The string/word that the forms found should be similar to.
+   */
+  forms(similarTo?: string) {
+    const res: string[] = [this.stem]
+
+    if (!this.affixes) return res
+
+    const suffixes = iterate(this.affixes.suffixes)
+      .filter(suffix => (similarTo ? similarTo.endsWith(suffix.add) : true))
+      .toArray()
+
+    const prefixes = iterate(this.affixes.prefixes)
+      .filter(prefix => (similarTo ? similarTo.startsWith(prefix.add) : true))
+      .toArray()
+
+    const cross = iterate(prefixes)
+      .map(prefix =>
+        iterate(suffixes)
+          .filter(suffix => suffix.crossproduct && prefix.crossproduct)
+          .map(suffix => [prefix, suffix] as [Prefix, Suffix])
+          .toArray()
+      )
+      .flatten()
+      .toArray()
+
+    for (const suffix of suffixes) {
+      const root = suffix.strip ? this.stem.slice(0, -suffix.strip.length) : this.stem
+      res.push(root + suffix.add)
+    }
+
+    for (const [prefix, suffix] of cross) {
+      const root = suffix.strip
+        ? this.stem.slice(prefix.strip.length, -suffix.strip.length)
+        : this.stem.slice(prefix.strip.length)
+      res.push(prefix.add + root + suffix.add)
+    }
+
+    for (const prefix of prefixes) {
+      const root = this.stem.slice(prefix.strip.length)
+      res.push(prefix.add + root)
+    }
+
+    return res
   }
 }

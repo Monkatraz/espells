@@ -366,8 +366,6 @@ export class Suggest {
   private ngramBuilder(word: string, handled: Set<string>) {
     return new NgramSuggestionBuilder(
       lowercase(word),
-      this.aff.PFX,
-      this.aff.SFX,
       iterate(handled).map(lowercase).toSet(),
       this.aff.MAXDIFF,
       this.aff.ONLYMAXDIFF,
