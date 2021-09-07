@@ -12,13 +12,7 @@ export const CONSTANTS = {
    * `RegExp` used to split a string of flags in "long" format, i.e. each
    * flag is two characters.
    */
-  FLAG_LONG_REGEX: /../,
-
-  /**
-   * `RegExp` used to split a string of flags in "numeric" format, i.e.
-   * each flag is a number, separated from other numbers with commas.
-   */
-  FLAG_NUM_REGEX: /\d+(?=,|$)/,
+  FLAG_LONG_REGEX: /(..)(..)*/,
 
   /**
    * `RegExp` used to parse phoneme table rules.

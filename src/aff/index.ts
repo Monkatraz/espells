@@ -366,7 +366,7 @@ export class Aff implements AffData {
         case "UTF-8":
         case "short": return [...flag]
         case "long": return C.FLAG_LONG_REGEX.exec(flag)?.slice(1) ?? []
-        case "numeric": return C.FLAG_NUM_REGEX.exec(flag)?.slice(1) ?? []
+        case "numeric": return flag.split(",")
       }
     })
 
