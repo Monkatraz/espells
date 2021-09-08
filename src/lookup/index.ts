@@ -100,7 +100,7 @@ export class Lookup {
     if (C.NUMBER_REGEX.test(word)) return { correct: true, forbidden, warn }
 
     for (const words of breakWord(this.aff, word)) {
-      if (iterate(words).every(word => this.correct(word, { caps, allowNoSuggest }))) {
+      if (words.every(word => this.correct(word, { caps, allowNoSuggest }))) {
         return { correct: true, forbidden, warn }
       }
     }
