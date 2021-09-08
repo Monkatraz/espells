@@ -46,6 +46,12 @@ export class Word {
 
     stem = stem.replaceAll("\\/", "/")
 
+    if (aff.IGNORE) {
+      for (const ch of aff.IGNORE) {
+        stem = stem.replaceAll(ch, "")
+      }
+    }
+
     this.stem = stem
     this.capType = aff.casing.guess(stem)
 

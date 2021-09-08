@@ -157,7 +157,7 @@ export class Aff implements AffData {
         }
 
         case "IGNORE": {
-          this.IGNORE = new Set([...args])
+          this.IGNORE = new Set([...args].map(str => str.split("")).flat())
           break
         }
 
