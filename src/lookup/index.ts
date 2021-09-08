@@ -451,10 +451,9 @@ export class Lookup {
           .filter(word => Boolean(word.flags))
           .map(word => word.flags!)
           .toSet()
-        for (const rule of rules) {
-          if (rule.match(flagSets)) {
-            yield [new AffixForm(lkword)]
-          }
+
+        if (iterate(rules).some(rule => rule.match(flagSets))) {
+          yield [new AffixForm(lkword)]
         }
       }
     }

@@ -121,6 +121,8 @@ function parseCompoundRule(text: string, aff: Aff) {
     let quantifier = Quantifier.ONE
 
     if (text[i] === "(") {
+      flag += text[i]
+
       while (text[i] !== ")" && i < text.length) {
         i++
         flag += text[i]
