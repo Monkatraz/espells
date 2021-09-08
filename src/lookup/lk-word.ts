@@ -205,7 +205,7 @@ export class LKWord {
       }
     }
 
-    if (this.aff.COMPOUNDRULE) {
+    if (this.aff.COMPOUNDRULE.size) {
       for (const compound of this.compoundsByRules()) {
         if (!isBadCompound(this, compound, this.type)) {
           yield compound
