@@ -1,10 +1,9 @@
 import { iterate } from "iterare"
-import type { LKFlags } from "."
 import type { Aff } from "../aff"
 import { CompoundPos } from "../constants"
 import { concat, reverse } from "../util"
 import { AffixForm } from "./forms"
-import type { LKWord } from "./lk-word"
+import type { LKFlags, LKWord } from "./lk-word"
 
 export const enum AffixType {
   PREFIX,
