@@ -2,7 +2,7 @@
   "name": "espells",
   "license": "MIT",
   "description": "Pure JS/TS spellchecker, using Hunspell dictionaries. Based on Spylls.",
-  "version": "0.1.4",
+  "version": "0.2.0",
   "keywords": [
     "wikijump",
     "spell",
@@ -46,7 +46,6 @@
     "eslint-plugin-import": "^2.24.2",
     "eslint-plugin-regexp": "^1.1.0",
     "eslint-plugin-tsdoc": "^0.2.14",
-    "globby": "^11.0.4",
     "prettier": "^2.3.2",
     "prettier-plugin-jsdoc": "^0.3.24",
     "prettier-plugin-organize-imports": "^2.3.3",
