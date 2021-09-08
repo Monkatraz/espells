@@ -64,7 +64,7 @@ export class Casing {
    * @param word - The word to lowercase the first letter of.
    */
   lowerfirst(word: string) {
-    return [replaceRange(word, 0, 1, lowercase(word[0]))]
+    return [replaceRange(word, 0, 1, this.lower(word[0])[0])]
   }
 
   /**
@@ -132,7 +132,7 @@ export class Casing {
  */
 export class TurkicCasing extends Casing {
   private replaceMapping(word: string, dir: -1 | 1) {
-    if (!/İiIı/u.test(word)) return word
+    if (!/[İiIı]/u.test(word)) return word
     return dir < 0
       ? word.replaceAll("İ", "i").replaceAll("I", "ı")
       : word.replaceAll("i", "İ").replaceAll("ı", "I")
