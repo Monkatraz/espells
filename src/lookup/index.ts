@@ -91,11 +91,7 @@ export class Lookup {
 
     if (this.aff.ICONV) word = this.aff.ICONV.match(word)
 
-    if (this.aff.IGNORE) {
-      for (const ch of this.aff.IGNORE) {
-        word = word.replaceAll(ch, "")
-      }
-    }
+    word = this.aff.ignore(word)
 
     if (C.NUMBER_REGEX.test(word)) return { correct: true, forbidden, warn }
 
@@ -180,12 +176,7 @@ export class Lookup {
    */
   *stems(word: string, { caps, allowNoSuggest, affixForms, compoundForms }: LKC = {}) {
     if (this.aff.ICONV) word = this.aff.ICONV.match(word)
-
-    if (this.aff.IGNORE) {
-      for (const ch of this.aff.IGNORE) {
-        word = word.replaceAll(ch, "")
-      }
-    }
+    word = this.aff.ignore(word)
 
     const iter = this.forms(word, { caps, allowNoSuggest, affixForms, compoundForms })
 

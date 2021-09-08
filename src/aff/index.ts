@@ -380,9 +380,26 @@ export class Aff implements AffData {
    * Utility for handling special cases involving the `CHECKSHARPS`
    * directive. Returns false if the directive itself is disabled, but
    * otherwise will determine if the given word contains a `ß`.
+   *
+   * @param word - The word to check.
    */
   isSharps(word: string) {
     if (!this.CHECKSHARPS) return false
     return word.includes("ß")
+  }
+
+  /**
+   * Utility for applying the {@link Aff.IGNORE} transformation to a string.
+   * Does nothing if the `IGNORE` directive isn't present.
+   *
+   * @param str - The string to transform.
+   */
+  ignore(str: string) {
+    if (this.IGNORE) {
+      for (const ch of this.IGNORE) {
+        str = str.replaceAll(ch, "")
+      }
+    }
+    return str
   }
 }

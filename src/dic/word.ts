@@ -48,12 +48,7 @@ export class Word {
     let [, stem, flags, data] = match
 
     stem = stem.replaceAll("_||_", "/")
-
-    if (aff.IGNORE) {
-      for (const ch of aff.IGNORE) {
-        stem = stem.replaceAll(ch, "")
-      }
-    }
+    stem = aff.ignore(stem)
 
     this.stem = stem
     this.capType = aff.casing.guess(stem)
