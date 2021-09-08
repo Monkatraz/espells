@@ -259,10 +259,12 @@ export class Aff implements AffData {
           break
         }
 
+        // TODO: PFX, SFX data fields (see morph fixture)
+
         case "PFX": {
           const [flag, crossproduct, count] = args
           reader.for(parseInt(count), line => {
-            const [, , strip, add, cond] = split(line)
+            const [strip, add, cond] = parseAffixLine(this, line)
             const prefix = new Prefix(flag, crossproduct, strip, add, cond, this)
             const set = this.PFX.get(flag) ?? new Set()
             this.PFX.set(flag, set.add(prefix))
@@ -273,7 +275,7 @@ export class Aff implements AffData {
         case "SFX": {
           const [flag, crossproduct, count] = args
           reader.for(parseInt(count), line => {
-            const [, , strip, add, cond] = split(line)
+            const [strip, add, cond] = parseAffixLine(this, line)
             const suffix = new Suffix(flag, crossproduct, strip, add, cond, this)
             const set = this.SFX.get(flag) ?? new Set()
             this.SFX.set(flag, set.add(suffix))
@@ -402,4 +404,12 @@ export class Aff implements AffData {
     }
     return str
   }
+}
+
+function parseAffixLine(aff: Aff, line: string) {
+  let [, , strip, add, cond = ""] = split(line)
+  if (strip === "0") strip = ""
+  if (add === "0") add = ""
+  add = aff.ignore(add)
+  return [strip, add, cond]
 }
