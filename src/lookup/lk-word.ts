@@ -1,12 +1,11 @@
-import { iterate } from "iterare"
 import type { Aff, Flags } from "../aff"
 import type { CompoundRule } from "../aff/compound-rule"
 import { CapType, CompoundPos } from "../constants"
 import type { Dic, Word } from "../dic"
-import { replchars } from "../permutations"
-import { any, includes, isUppercased, lowercase } from "../util"
+import { lowercase } from "../util"
 import { decompose } from "./decompose"
-import { AffixForm, CompoundForm } from "./forms"
+import { AffixForm, CompoundForm, isBadCompound } from "./forms"
+import { LKFlags } from "./lk-flags"
 
 /**
  * A word (a string) wrapped with metadata. Can be iterated, and will
@@ -123,24 +122,14 @@ export class LKWord {
    * being mutually compatible.
    */
   *affixForms(allowNoSuggest = true, withForbidden = false, flags = new LKFlags()) {
-    const candidates = (form: AffixForm, stem: string, caps = false, words?: Set<Word>) =>
-      this.candidates(form, { allowNoSuggest, caps }, stem, words)
-
     for (const form of decompose(this.aff, this, flags)) {
       let found = false
 
       const homonyms = this.dic.homonyms(form.stem)
 
       if (homonyms.size) {
-        if (
-          !withForbidden &&
-          this.aff.FORBIDDENWORD &&
-          (this.pos !== undefined || form.hasAffixes) &&
-          iterate(homonyms).some(word => word.has(this.aff.FORBIDDENWORD))
-        ) {
-          return
-        }
-        yield* candidates(form, form.stem, false, homonyms)
+        if (!withForbidden && this.hasForbidden(form, homonyms)) return
+        found = yield* this.candidates(form, allowNoSuggest, form.stem, homonyms)
       }
 
       if (
@@ -148,7 +137,7 @@ export class LKWord {
         this.aff.FORCEUCASE &&
         this.type === CapType.INIT
       ) {
-        yield* candidates(form, lowercase(form.stem))
+        found = yield* this.candidates(form, allowNoSuggest, lowercase(form.stem))
       }
 
       if (found || this.pos !== undefined || this.type !== CapType.ALL) {
@@ -156,9 +145,18 @@ export class LKWord {
       }
 
       if (this.aff.casing.guess(this.word) === CapType.NO) {
-        yield* candidates(form, form.stem)
+        yield* this.candidates(form, allowNoSuggest)
       }
     }
+  }
+
+  private hasForbidden(form: AffixForm, words: Set<Word>) {
+    if (!this.aff.FORBIDDENWORD) return false
+    if (this.pos === undefined && !form.hasAffixes) return false
+    for (const word of words) {
+      if (word.has(this.aff.FORBIDDENWORD)) return true
+    }
+    return false
   }
 
   /**
@@ -166,70 +164,21 @@ export class LKWord {
    * entire word form, taking into account {@link Aff} directives and other
    * edge cases.
    */
-  *candidates(
+  private *candidates(
     form: AffixForm,
-    { allowNoSuggest = true, caps = true },
+    allowNoSuggest = true,
     stem = form.stem,
     homonyms?: Set<Word>
   ) {
-    const aff = this.aff
-    for (const homonym of homonyms ?? this.dic.homonyms(stem, !caps)) {
+    let found = false
+    for (const homonym of homonyms ?? this.dic.homonyms(stem, true)) {
       const candidate = form.replace({ inDictionary: homonym })
-
-      if (!candidate.inDictionary) continue
-
-      const rootFlags = candidate.inDictionary.flags ?? new Set()
-      const allFlags = candidate.flags
-
-      if (!allowNoSuggest && includes(aff.NOSUGGEST, rootFlags)) continue
-
-      if (
-        this.type !== candidate.inDictionary.capType &&
-        includes(aff.KEEPCASE, rootFlags) &&
-        !aff.isSharps(candidate.inDictionary.stem)
-      ) {
-        continue
-      }
-
-      if (aff.NEEDAFFIX) {
-        if (candidate.hasAffixes) {
-          if (candidate.affixes().every(affix => affix.has(aff.NEEDAFFIX))) {
-            continue
-          }
-        } else if (rootFlags.has(aff.NEEDAFFIX)) {
-          continue
-        }
-      }
-
-      if (candidate.prefix && !allFlags.has(candidate.prefix.flag)) continue
-      if (candidate.suffix && !allFlags.has(candidate.suffix.flag)) continue
-
-      if (aff.CIRCUMFIX) {
-        const suffixHas = Boolean(candidate.suffix?.has(aff.CIRCUMFIX))
-        const prefixHas = Boolean(candidate.prefix?.has(aff.CIRCUMFIX))
-        if (suffixHas !== prefixHas) continue
-      }
-
-      if (this.pos === undefined) {
-        if (!includes(aff.ONLYINCOMPOUND, allFlags)) yield candidate
-        continue
-      }
-
-      if (includes(aff.COMPOUNDFLAG, allFlags)) {
+      if (candidate.valid(this, allowNoSuggest)) {
+        found = true
         yield candidate
-        continue
       }
-
-      let passes = false
-      // prettier-ignore
-      switch(this.pos) {
-          case CompoundPos.BEGIN:  passes = includes(aff.COMPOUNDBEGIN,  allFlags)
-          case CompoundPos.MIDDLE: passes = includes(aff.COMPOUNDMIDDLE, allFlags)
-          case CompoundPos.END:    passes = includes(aff.COMPOUNDEND,    allFlags)
-        }
-
-      if (passes) yield candidate
     }
+    return found
   }
 
   // -- COMPOUND FORMS
@@ -241,6 +190,7 @@ export class LKWord {
    */
   *compoundForms(allowNoSuggest = true) {
     // don't even try to decompose a forbidden word
+    // TODO: this is incredibly slow, remove this
     if (this.aff.FORBIDDENWORD) {
       for (const candidate of this.affixForms(true, true)) {
         if (candidate.flags.has(this.aff.FORBIDDENWORD)) return
@@ -249,15 +199,15 @@ export class LKWord {
 
     if (this.aff.COMPOUNDBEGIN || this.aff.COMPOUNDFLAG) {
       for (const compound of this.compoundsByFlags(allowNoSuggest)) {
-        if (!this.isBadCompound(compound, this.type)) {
+        if (!isBadCompound(this, compound, this.type)) {
           yield compound
         }
       }
     }
 
     if (this.aff.COMPOUNDRULE) {
-      for (const compound of this.compoundsByRules(allowNoSuggest)) {
-        if (!this.isBadCompound(compound, this.type)) {
+      for (const compound of this.compoundsByRules()) {
+        if (!isBadCompound(this, compound, this.type)) {
           yield compound
         }
       }
@@ -335,24 +285,16 @@ export class LKWord {
    * Takes this word and yields the {@link CompoundForm}s of it using the
    * `COMPOUNDRULE` pattern system.
    */
-  *compoundsByRules(
-    allowNoSuggest = true,
-    prev: Word[] = [],
-    rules?: Set<CompoundRule>
-  ): Iterable<CompoundForm> {
+  *compoundsByRules(prev: Word[] = [], rules?: CompoundRule[]): Iterable<CompoundForm> {
     const aff = this.aff
 
-    if (!rules) rules = this.aff.COMPOUNDRULE
+    if (!rules) rules = [...this.aff.COMPOUNDRULE]
 
     if (prev.length) {
       for (const homonym of this.dic.homonyms(this.word)) {
         const parts = [...prev, homonym]
-        const flagSets = iterate(parts)
-          .filter(word => Boolean(word.flags))
-          .map(word => new Set(word.flags!))
-          .toSet()
-
-        if (iterate(rules).some(rule => rule.match(flagSets))) {
+        const flagSets = flagsets(parts)
+        if (rules.some(rule => rule.match(flagSets))) {
           yield [new AffixForm(this)]
         }
       }
@@ -366,28 +308,18 @@ export class LKWord {
 
       for (const homonynm of this.dic.homonyms(beg.word)) {
         const parts = [...prev, homonynm]
-        const flagSets = iterate(parts)
-          .filter(word => Boolean(word.flags))
-          .map(word => new Set(word.flags!))
-          .toSet()
-        const compoundRules = iterate(rules)
-          .filter(rule => rule.match(flagSets, true))
-          .toSet()
-        if (compoundRules.size) {
-          for (const rest of this.slice(pos).compoundsByRules(
-            allowNoSuggest,
-            parts,
-            compoundRules
-          )) {
+        const flagSets = flagsets(parts)
+        const compoundRules = rules.filter(rule => rule.match(flagSets, true))
+        if (compoundRules.length) {
+          for (const rest of this.slice(pos).compoundsByRules(parts, compoundRules)) {
             yield [new AffixForm(beg), ...rest]
           }
         }
       }
     }
   }
-  }
+}
 
-  static from(prefix: Flags, suffix: Flags, forbidden: Flags) {
-    return new LKFlags({ prefix, suffix, forbidden })
-  }
+function flagsets(words: Word[]) {
+  return new Set(words.filter(word => word.flags).map(word => new Set(word.flags!)))
 }

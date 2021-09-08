@@ -1,6 +1,8 @@
 import type { Prefix, Suffix } from "../aff/affix"
+import { CapType, CompoundPos } from "../constants"
 import type { Word } from "../dic/word"
-import { concat } from "../util"
+import { replchars } from "../permutations"
+import { any, concat, includes, isUppercased } from "../util"
 import { LKWord } from "./lk-word"
 
 export interface AffixFormOpts {
@@ -101,6 +103,69 @@ export class AffixForm {
       Boolean(affix)
     ) as (Prefix | Suffix)[]
   }
+
+  /**
+   * Determines if this form is valid for the {@link LKWord} specified.
+   *
+   * @param word - The word to validate against.
+   * @param allowNoSuggest - If false, words which are in the dictionary,
+   *   but are flagged with the `NOSUGGEST` flag (if provided), will not be
+   *   considered correct. Defaults to true.
+   */
+  valid(word: LKWord, allowNoSuggest = true) {
+    if (!this.inDictionary) return false
+
+    const aff = word.aff
+
+    const rootFlags = this.inDictionary.flags ?? new Set()
+    const allFlags = this.flags
+
+    if (!allowNoSuggest && includes(aff.NOSUGGEST, rootFlags)) return false
+
+    if (
+      word.type !== this.inDictionary.capType &&
+      includes(aff.KEEPCASE, rootFlags) &&
+      !aff.isSharps(this.inDictionary.stem)
+    ) {
+      return false
+    }
+
+    if (aff.NEEDAFFIX) {
+      if (this.hasAffixes) {
+        if (this.affixes().every(affix => affix.has(aff.NEEDAFFIX))) {
+          return false
+        }
+      } else if (rootFlags.has(aff.NEEDAFFIX)) {
+        return false
+      }
+    }
+
+    if (this.prefix && !allFlags.has(this.prefix.flag)) return false
+    if (this.suffix && !allFlags.has(this.suffix.flag)) return false
+
+    if (aff.CIRCUMFIX) {
+      const suffixHas = Boolean(this.suffix?.has(aff.CIRCUMFIX))
+      const prefixHas = Boolean(this.prefix?.has(aff.CIRCUMFIX))
+      if (suffixHas !== prefixHas) return false
+    }
+
+    if (word.pos === undefined) {
+      if (!includes(aff.ONLYINCOMPOUND, allFlags)) return true
+      return false
+    }
+
+    if (includes(aff.COMPOUNDFLAG, allFlags)) return true
+
+    let passes = false
+    // prettier-ignore
+    switch(word.pos) {
+        case CompoundPos.BEGIN:  passes = includes(aff.COMPOUNDBEGIN,  allFlags)
+        case CompoundPos.MIDDLE: passes = includes(aff.COMPOUNDMIDDLE, allFlags)
+        case CompoundPos.END:    passes = includes(aff.COMPOUNDEND,    allFlags)
+      }
+
+    return passes
+  }
 }
 
 /**
@@ -115,3 +180,84 @@ export type CompoundForm = AffixForm[]
  * {@link AffixForm} instances.
  */
 export type WordForm = AffixForm | CompoundForm
+
+/**
+ * Determines if a {@link CompoundForm} is invalid for a {@link LKWord}, by
+ * various criteria.
+ *
+ * @param word - The word to validate against.
+ * @param compound - The {@link CompoundForm} to check.
+ * @param captype - The {@link CapType} of the original word.
+ * @see {@link CompoundPattern}
+ */
+export function isBadCompound(word: LKWord, compound: CompoundForm, captype: CapType) {
+  const aff = word.aff
+  const dic = word.dic
+
+  if (aff.FORCEUCASE && captype !== CapType.ALL && captype !== CapType.INIT) {
+    if (dic.hasFlag(compound[compound.length - 1].text, aff.FORCEUCASE)) {
+      return true
+    }
+  }
+
+  return [...compound]
+    .reverse()
+    .slice(-1)
+    .some((leftParadigm, idx) => {
+      const left = leftParadigm.text
+      const rightParadigm = compound[idx + 1]
+      const right = rightParadigm.text
+
+      if (dic.hasFlag(left, aff.COMPOUNDFORBIDFLAG)) {
+        return true
+      }
+
+      if (any(word.to(`${left} ${right}`, captype).affixForms())) {
+        return true
+      }
+
+      if (aff.CHECKCOMPOUNDREP) {
+        for (const candidate of replchars(left + right, aff.REP)) {
+          if (typeof candidate !== "string") continue
+          if (any(word.to(candidate, captype).affixForms())) {
+            return true
+          }
+        }
+      }
+
+      if (aff.CHECKCOMPOUNDTRIPLE) {
+        if (
+          `${left.slice(-2)}${right.slice(0, 1)}`.length === 1 ||
+          `${left.slice(-1)}${right.slice(2)}`.length === 1
+        ) {
+          return true
+        }
+      }
+
+      if (aff.CHECKCOMPOUNDCASE) {
+        const rightC = right[0]
+        const leftC = left[left.length - 1]
+        if (
+          (isUppercased(rightC) || isUppercased(leftC)) &&
+          rightC !== "-" &&
+          leftC !== "-"
+        ) {
+          return true
+        }
+
+        if (aff.CHECKCOMPOUNDPATTERN) {
+          for (const pattern of aff.CHECKCOMPOUNDPATTERN) {
+            if (pattern.match(leftParadigm, rightParadigm)) {
+              return true
+            }
+          }
+        }
+
+        if (aff.CHECKCOMPOUNDUP) {
+          if (left === right && idx === compound.length - 2) {
+            return true
+          }
+        }
+      }
+    })
+}
