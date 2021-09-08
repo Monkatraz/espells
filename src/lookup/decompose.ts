@@ -96,7 +96,7 @@ export function* affixes(
     yield* iterate(segments)
       .flatten()
       .filter(affix => {
-        if (isSuffix && !(crossproduct || affix.crossproduct)) return false
+        if (isSuffix && !(!crossproduct || affix.crossproduct)) return false
         if (!affix.compatible(required, flags.forbidden)) return false
         return affix.on(word)
       })
