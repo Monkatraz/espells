@@ -115,13 +115,13 @@ export class Lookup {
 
     if (C.NUMBER_REGEX.test(word)) return { correct: true, forbidden, warn }
 
-    for (const word2 of breakWord(this.aff, word)) {
-      if (!this.correct(word2, { caps, allowNoSuggest })) {
-        return { correct: false, forbidden, warn }
+    for (const words of breakWord(this.aff, word)) {
+      if (iterate(words).every(word => this.correct(word, { caps, allowNoSuggest }))) {
+        return { correct: true, forbidden, warn }
       }
     }
 
-    return { correct: true, forbidden, warn }
+    return { correct: false, forbidden, warn }
   }
 
   /**

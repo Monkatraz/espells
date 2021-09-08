@@ -212,6 +212,9 @@ export class Aff implements AffData {
           reader.for(parseInt(args[0]), line => {
             let [, pattern] = split(line)
             pattern = escapeRegExp(pattern).replaceAll("\\^", "^").replaceAll("\\$", "$")
+            if (!pattern.startsWith("^") && !pattern.endsWith("$")) {
+              pattern = `(?!^)${pattern}(?=.)`
+            }
             this.BREAK.add(re`/${pattern}/g`)
           })
           break

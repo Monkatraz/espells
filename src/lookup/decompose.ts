@@ -20,16 +20,15 @@ export const enum AffixType {
  * @param depth - The current depth of the check. Used by this function
  *   when calling itself recursively. There isn't any need to set it yourself.
  */
-export function* breakWord(aff: Aff, text: string, depth = 0): Iterable<string> {
+export function* breakWord(aff: Aff, text: string, depth = 0): Iterable<string[]> {
   if (depth > 10) return
-  yield text
+  yield [text].filter(Boolean)
   for (const pattern of aff.BREAK) {
     for (const m of text.matchAll(pattern)) {
       const start = text.slice(0, m.index!)
-      const rest = text.slice(0, m.index! + m[0].length)
+      const rest = text.slice(m.index! + m[0].length)
       for (const breaking of breakWord(aff, rest, depth + 1)) {
-        yield start
-        yield* breaking
+        yield [start, ...breaking].filter(Boolean)
       }
     }
   }
