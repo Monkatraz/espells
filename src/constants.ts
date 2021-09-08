@@ -31,7 +31,7 @@ export const CONSTANTS = {
    * `RegExp` used by the {@link Dic} `.dic` parser to determine if a line
    * should be skipped.
    */
-  DIC_SKIP_REGEX: /^\d+(\s+|$)|^\/|^\t|^\s*$/,
+  DIC_SKIP_REGEX: /^\d+(\s+|$)|^\t|^\s*$/,
 
   /**
    * `RegExp` used to split a `.dic` "word" into its various components. Groups:

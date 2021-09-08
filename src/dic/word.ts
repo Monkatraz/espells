@@ -40,11 +40,14 @@ export class Word {
    * @param aff - {@link Aff} data to use.
    */
   constructor(line: string, aff: Aff) {
+    // a hack so that the split regex doesn't get confused with escapes
+    line = line.replaceAll("\\/", "_||_")
+
     const match = C.SPLIT_WORD_REGEX.exec(line)
     if (!match) throw new SyntaxError(`Invalid line in dictionary '${line}'`)
     let [, stem, flags, data] = match
 
-    stem = stem.replaceAll("\\/", "/")
+    stem = stem.replaceAll("_||_", "/")
 
     if (aff.IGNORE) {
       for (const ch of aff.IGNORE) {
