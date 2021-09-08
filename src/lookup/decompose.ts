@@ -1,9 +1,9 @@
-import { iterate } from "iterare"
 import type { Aff } from "../aff"
 import { CompoundPos } from "../constants"
 import { concat, reverse } from "../util"
 import { AffixForm } from "./forms"
-import type { LKFlags, LKWord } from "./lk-word"
+import type { LKFlags } from "./lk-flags"
+import type { LKWord } from "./lk-word"
 
 export const enum AffixType {
   PREFIX,
@@ -91,13 +91,14 @@ export function* affixes(
   if (segments) {
     const required = isSuffix ? flags.suffix : flags.prefix
 
-    yield* iterate(segments)
-      .flatten()
-      .filter(affix => {
-        if (isSuffix && !(!crossproduct || affix.crossproduct)) return false
-        if (!affix.compatible(required, flags.forbidden)) return false
-        return affix.on(word)
-      })
+    for (const segment of segments) {
+      for (const affix of segment) {
+        if (isSuffix && !(!crossproduct || affix.crossproduct)) continue
+        if (!affix.on(word)) continue
+        if (!affix.compatible(required, flags.forbidden)) continue
+        yield affix
+      }
+    }
   }
 }
 
@@ -124,7 +125,7 @@ export function* desuffix(
     yield new AffixForm(word, stem, { suffix })
 
     if (!nested) {
-      const newFlags = { ...flags, suffix: concat(suffix.flags, flags.suffix) }
+      const newFlags = flags.replace({ suffix: concat(suffix.flags, flags.suffix) })
       for (const form2 of desuffix(aff, stem, newFlags, crossproduct, true)) {
         yield form2.replace({ text: word, suffix2: suffix })
       }
@@ -153,7 +154,7 @@ export function* deprefix(
     yield new AffixForm(word, stem, { prefix })
 
     if (!nested && aff.COMPLEXPREFIXES) {
-      const newFlags = { ...flags, prefix: concat(prefix.flags, flags.prefix) }
+      const newFlags = flags.replace({ prefix: concat(prefix.flags, flags.prefix) })
       for (const form2 of deprefix(aff, stem, newFlags, true)) {
         yield form2.replace({ text: word, prefix2: prefix })
       }
