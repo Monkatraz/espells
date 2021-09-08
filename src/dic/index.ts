@@ -142,12 +142,16 @@ export class Dic {
    */
   hasFlag(stem: string, flag?: Flag, all = false) {
     if (flag === undefined) return false
+
+    let flagged = false
+
     for (const word of this.homonyms(stem)) {
-      const flagged = word.has(flag)
-      if (all && !flagged) return false
-      if (!all && flagged) return true
+      const has = word.has(flag)
+      if (has) flagged = true
+      if (all && !has) return false
+      if (!all && has) return true
     }
-    // if we're looking for all and we've made it this far, then we're good
-    return all
+
+    return all && flagged
   }
 }
