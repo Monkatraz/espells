@@ -31,7 +31,7 @@ export const CONSTANTS = {
    * `RegExp` used by the {@link Dic} `.dic` parser to determine if a line
    * should be skipped.
    */
-  DIC_SKIP_REGEX: /^\d+(\s+|$)|^\t|^\s*$/,
+  DIC_SKIP_REGEX: /^\d+(\s+|$)|^\t|^\s*$/u,
 
   /**
    * `RegExp` used to split a `.dic` "word" into its various components. Groups:
@@ -40,7 +40,7 @@ export const CONSTANTS = {
    * 2. Flags
    * 3. Data (not split here, see {@link CONSTANTS.SPLIT_DATA_REGEX})
    */
-  SPLIT_WORD_REGEX: /^(.+?)(?:\/([\S\t]*?))?(?:(?:\s(?=.*?:.))(.+))?$/,
+  SPLIT_WORD_REGEX: /^(.+?)(?:\/([\S\t]*?))?(?:(?:\s(?=.*?:.))(.+))?$/u,
 
   /**
    * `RegExp` used to split a `.dic` word data key-value. Groups:
@@ -81,16 +81,16 @@ export const CONSTANTS = {
   MAX_CHAR_DISTANCE: 4,
 
   /** `RegExp` used to split a string `RegExp`. Used in the {@link re} function. */
-  SPLIT_REGEX_REGEX: /^([^]*)\/([^]+)\/([^]*)$/,
+  SPLIT_REGEX_REGEX: /^([^]*)\/([^]+)\/([^]*)$/u,
 
   /** `RegExp` used to split an {@link Affix} condition. */
-  SPLIT_CONDITION_REGEX: /(\[.+\]|[^\[])/g,
+  SPLIT_CONDITION_REGEX: /(\[.+\]|[^\[])/gu,
 
   /**
    * The default set of `RegExp`s used when breaking apart multiple words
    * from a single string with {@link breakWord}.
    */
-  DEFAULT_BREAK: new Set([/-/g, /^-/g, /-$/g]),
+  DEFAULT_BREAK: new Set([/(?!^)-(?=.)/g, /^-/g, /-$/g]),
 
   /** `RegExp` used to match a line that is just a number. Used in the `.dic` parser. */
   NUMBER_REGEX: /^\d+(\.\d+)?$/,
