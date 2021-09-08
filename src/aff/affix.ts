@@ -60,11 +60,7 @@ export abstract class Affix {
     let flags: string
     ;[add, flags] = add.split("/")
 
-    if (aff.IGNORE) {
-      for (const ch of aff.IGNORE) {
-        add = add.replaceAll(ch, "")
-      }
-    }
+    add = aff.ignore(add)
 
     this.flag = flag
     this.crossproduct = crossproduct === "Y"
