@@ -11,6 +11,7 @@ const Break = uvu.suite("Break")
 const Compounding = uvu.suite("Compounding")
 const Misc = uvu.suite("Misc")
 const EdgeCases = uvu.suite("Edge Cases")
+const Special = uvu.suite("Special")
 
 // known fails (mainly encoding based, not relevant)
 // report(Base, "base")
@@ -126,6 +127,13 @@ report(EdgeCases, "i54633")
 // report(EdgeCases, "i54980")
 report(EdgeCases, "i58202")
 
+Special("French", async () => {
+  const aff = await fs.readFile("./tests/fr/index.aff", "utf-8")
+  const dic = await fs.readFile("./tests/fr/index.dic", "utf-8")
+  const spellchecker = new Espells({ aff, dic })
+  spellchecker.suggest("Blueberry")
+})
+
 Base.run()
 Affixes.run()
 ExclusionFlags.run()
@@ -134,6 +142,7 @@ InputOutput.run()
 Compounding.run()
 Misc.run()
 EdgeCases.run()
+Special.run()
 
 async function fileExists(file) {
   try {
