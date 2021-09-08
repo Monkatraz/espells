@@ -93,7 +93,7 @@ export class LKWord {
    * @param n - The index of the desired character. Can be negative.
    */
   at(n: number) {
-    if (n < 0) return this.word[this.word.length - n]
+    if (n < 0) return this.word[this.word.length + n]
     return this.word[n]
   }
 
@@ -251,27 +251,16 @@ export class LKWord {
       const rest = this.slice(pos)
       rest.pos = compoundpos
 
-      const forms = beg.affixForms(
-        allowNoSuggest,
-        false,
-        LKFlags.from(prefixFlags, permitFlags, forbiddenFlags)
-      )
+      const flags = LKFlags.from(prefixFlags, permitFlags, forbiddenFlags)
 
-      for (const form of forms) {
+      for (const form of beg.affixForms(allowNoSuggest, false, flags)) {
         for (const partial of rest.compoundsByFlags(allowNoSuggest, depth + 1)) {
           yield [form, ...partial]
         }
       }
 
       if (aff.SIMPLIFIEDTRIPLE && beg.at(-1) === rest.at(0)) {
-        const forms = beg
-          .add(beg.at(-1))
-          .affixForms(
-            allowNoSuggest,
-            false,
-            LKFlags.from(prefixFlags, permitFlags, forbiddenFlags)
-          )
-
+        const forms = beg.add(beg.at(-1)).affixForms(allowNoSuggest, false, flags)
         for (const form of forms) {
           for (const partial of rest.compoundsByFlags(allowNoSuggest, depth + 1)) {
             yield [form.replace({ text: beg.word }), ...partial]
