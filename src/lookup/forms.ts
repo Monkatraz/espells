@@ -200,64 +200,61 @@ export function isBadCompound(word: LKWord, compound: CompoundForm, captype: Cap
     }
   }
 
-  return [...compound]
-    .reverse()
-    .slice(-1)
-    .some((leftParadigm, idx) => {
-      const left = leftParadigm.text
-      const rightParadigm = compound[idx + 1]
-      const right = rightParadigm.text
+  return compound.slice(0, -1).some((leftParadigm, idx) => {
+    const left = leftParadigm.text
+    const rightParadigm = compound[idx + 1]
+    const right = rightParadigm.text
 
-      if (dic.hasFlag(left, aff.COMPOUNDFORBIDFLAG)) {
-        return true
-      }
+    if (dic.hasFlag(left, aff.COMPOUNDFORBIDFLAG)) {
+      return true
+    }
 
-      if (any(word.to(`${left} ${right}`, captype).affixForms())) {
-        return true
-      }
+    if (any(word.to(`${left} ${right}`, captype).affixForms())) {
+      return true
+    }
 
-      if (aff.CHECKCOMPOUNDREP) {
-        for (const candidate of replchars(left + right, aff.REP)) {
-          if (typeof candidate !== "string") continue
-          if (any(word.to(candidate, captype).affixForms())) {
-            return true
-          }
-        }
-      }
-
-      if (aff.CHECKCOMPOUNDTRIPLE) {
-        if (
-          `${left.slice(-2)}${right.slice(0, 1)}`.length === 1 ||
-          `${left.slice(-1)}${right.slice(2)}`.length === 1
-        ) {
+    if (aff.CHECKCOMPOUNDREP) {
+      for (const candidate of replchars(left + right, aff.REP)) {
+        if (typeof candidate !== "string") continue
+        if (any(word.to(candidate, captype).affixForms())) {
           return true
         }
       }
+    }
 
-      if (aff.CHECKCOMPOUNDCASE) {
-        const rightC = right[0]
-        const leftC = left[left.length - 1]
-        if (
-          (isUppercased(rightC) || isUppercased(leftC)) &&
-          rightC !== "-" &&
-          leftC !== "-"
-        ) {
+    if (aff.CHECKCOMPOUNDTRIPLE) {
+      if (
+        `${left.slice(-2)}${right.slice(0, 1)}`.length === 1 ||
+        `${left.slice(-1)}${right.slice(2)}`.length === 1
+      ) {
+        return true
+      }
+    }
+
+    if (aff.CHECKCOMPOUNDCASE) {
+      const rightC = right[0]
+      const leftC = left[left.length - 1]
+      if (
+        (isUppercased(rightC) || isUppercased(leftC)) &&
+        rightC !== "-" &&
+        leftC !== "-"
+      ) {
+        return true
+      }
+    }
+
+    if (aff.CHECKCOMPOUNDPATTERN.size) {
+      for (const pattern of aff.CHECKCOMPOUNDPATTERN) {
+        if (pattern.match(leftParadigm, rightParadigm)) {
           return true
         }
-
-        if (aff.CHECKCOMPOUNDPATTERN) {
-          for (const pattern of aff.CHECKCOMPOUNDPATTERN) {
-            if (pattern.match(leftParadigm, rightParadigm)) {
-              return true
-            }
-          }
-        }
-
-        if (aff.CHECKCOMPOUNDUP) {
-          if (left === right && idx === compound.length - 2) {
-            return true
-          }
-        }
       }
-    })
+    }
+
+    if (aff.CHECKCOMPOUNDDUP) {
+      if (left === right && idx === compound.length - 2) {
+        return true
+      }
+    }
+  })
 }
