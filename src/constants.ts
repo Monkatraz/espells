@@ -59,6 +59,9 @@ export const CONSTANTS = {
    */
   MAX_SUGGESTIONS: 15,
 
+  /** Maximum number of permutations generated per permutation type. */
+  MAX_PERMUTATIONS: 500,
+
   /** Maximum number of ngram "roots" (most similar words to a misspelling). */
   NGRAM_MAX_ROOTS: 100,
 

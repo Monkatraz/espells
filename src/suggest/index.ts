@@ -17,7 +17,7 @@ import {
   swapchar,
   twowords
 } from "../permutations"
-import { intersect, lowercase, uppercase } from "../util"
+import { intersect, limit, lowercase, uppercase } from "../util"
 import { NgramSuggestionBuilder } from "./ngram"
 import { PhonetSuggestionBuilder } from "./phonet"
 import { MultiWordSuggestion, Suggestion } from "./suggestion"
@@ -113,7 +113,7 @@ export class Suggest {
 
       let noCompound = false
 
-      for (const suggestion of this.edits(variant, handle, C.MAX_SUGGESTIONS)) {
+      for (const suggestion of this.edits(variant, handle, C.MAX_SUGGESTIONS, false)) {
         yield suggestion
 
         goodEditsFound ||= GOOD_EDITS.includes(suggestion.kind)
@@ -305,7 +305,7 @@ export class Suggest {
   private *permutations(word: string): Iterable<Suggestion | MultiWordSuggestion> {
     yield new Suggestion(this.aff.casing.upper(word), SuggestionKind.UPPERCASE)
 
-    for (const suggestion of replchars(word, this.aff.REP)) {
+    for (const suggestion of limit(replchars(word, this.aff.REP), C.MAX_PERMUTATIONS)) {
       if (Array.isArray(suggestion)) {
         yield new Suggestion(suggestion.join(" "), SuggestionKind.REPLCHARS)
         yield new MultiWordSuggestion(suggestion, SuggestionKind.REPLCHARS, false)
@@ -314,7 +314,7 @@ export class Suggest {
       }
     }
 
-    for (const words of twowords(word)) {
+    for (const words of limit(twowords(word), C.MAX_PERMUTATIONS)) {
       yield new Suggestion(words.join(" "), SuggestionKind.SPACEWORD)
       if (this.dashes) yield new Suggestion(words.join("-"), SuggestionKind.SPACEWORD)
     }
@@ -333,7 +333,7 @@ export class Suggest {
     }
 
     if (!this.aff.NOSPLITSUGS) {
-      for (const suggestionPair of twowords(word)) {
+      for (const suggestionPair of limit(twowords(word), C.MAX_PERMUTATIONS)) {
         yield new MultiWordSuggestion(
           suggestionPair,
           SuggestionKind.TWOWORDS,
@@ -350,12 +350,16 @@ export class Suggest {
    * settings specific to the {@link Suggest} class.
    */
   private correct(word: string, compounds?: boolean) {
-    return this.lookup.correct(word, {
-      caps: false,
-      allowNoSuggest: false,
-      affixForms: !compounds,
-      compoundForms: !!compounds
-    })
+    if (compounds !== undefined) {
+      return this.lookup.correct(word, {
+        caps: false,
+        allowNoSuggest: false,
+        affixForms: !compounds,
+        compoundForms: !!compounds
+      })
+    } else {
+      return this.lookup.correct(word, { allowNoSuggest: false, caps: false })
+    }
   }
 
   /**
@@ -363,7 +367,7 @@ export class Suggest {
    * yields strings.
    */
   private *pmtFrom(iter: Iterable<string>, kind: SuggestionKind) {
-    for (const suggestion of iter) {
+    for (const suggestion of limit(iter, C.MAX_PERMUTATIONS)) {
       yield new Suggestion(suggestion, kind)
     }
   }

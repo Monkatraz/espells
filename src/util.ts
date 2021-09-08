@@ -199,6 +199,19 @@ export function any(gen: Iterable<unknown>) {
 }
 
 /**
+ * Limits an iterator to the specified count.
+ *
+ * @param gen - The iterator to limit. param n - The number of elements to limit to.
+ */
+export function* limit<T>(gen: Iterable<T>, n: number): Iterable<T> {
+  let i = 0
+  for (const x of gen) {
+    if (i++ >= n) break
+    yield x
+  }
+}
+
+/**
  * Returns the number of characters common between two strings, in both
  * type and position.
  */
