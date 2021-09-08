@@ -349,7 +349,7 @@ export class LKWord {
         const parts = [...prev, homonym]
         const flagSets = iterate(parts)
           .filter(word => Boolean(word.flags))
-          .map(word => word.flags!)
+          .map(word => new Set(word.flags!))
           .toSet()
 
         if (iterate(rules).some(rule => rule.match(flagSets))) {
@@ -368,7 +368,7 @@ export class LKWord {
         const parts = [...prev, homonynm]
         const flagSets = iterate(parts)
           .filter(word => Boolean(word.flags))
-          .map(word => word.flags!)
+          .map(word => new Set(word.flags!))
           .toSet()
         const compoundRules = iterate(rules)
           .filter(rule => rule.match(flagSets, true))

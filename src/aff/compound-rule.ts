@@ -101,7 +101,7 @@ export class CompoundRule {
     // no flags in common
     if (relevant.size === 0) return false
 
-    return iterate(product(...relevant)).some(fc =>
+    return iterate(product(...flags)).some(fc =>
       partial ? this.partialRegex.test(fc.join("")) : this.regex.test(fc.join(""))
     )
   }
