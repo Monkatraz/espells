@@ -132,7 +132,7 @@ function parseCompoundRule(text: string, aff: Aff) {
         quantifier = Quantifier.ZERO_OR_ONE
         i++
       } else if (text[i + 1] === "*") {
-        quantifier = Quantifier.ZERO_OR_ONE
+        quantifier = Quantifier.ZERO_OR_MORE
         i++
       }
 
