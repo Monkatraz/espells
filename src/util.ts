@@ -142,6 +142,15 @@ export function split(line: string) {
 }
 
 /**
+ * Returns true if the given string 3 characters and all characters are the same.
+ *
+ * @param s - The string to check.
+ */
+export function isTriplet(s: string) {
+  return s.length === 3 && s[1] === s[0] && s[2] === s[0]
+}
+
+/**
  * Returns a new set containing all intersecting elements between two sets.
  *
  * @param a - The first set.

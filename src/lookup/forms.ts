@@ -2,7 +2,7 @@ import type { Prefix, Suffix } from "../aff/affix"
 import { CapType, CompoundPos } from "../constants"
 import type { Word } from "../dic/word"
 import { replchars } from "../permutations"
-import { any, concat, includes, isUppercased } from "../util"
+import { any, concat, includes, isTriplet, isUppercased } from "../util"
 import { LKWord } from "./lk-word"
 
 export interface AffixFormOpts {
@@ -224,8 +224,8 @@ export function isBadCompound(word: LKWord, compound: CompoundForm, captype: Cap
 
     if (aff.CHECKCOMPOUNDTRIPLE) {
       if (
-        `${left.slice(-2)}${right.slice(0, 1)}`.length === 1 ||
-        `${left.slice(-1)}${right.slice(2)}`.length === 1
+        isTriplet(`${left.slice(-2)}${right.slice(0, 1)}`) ||
+        isTriplet(`${left.slice(-1)}${right.slice(0, 2)}`)
       ) {
         return true
       }
