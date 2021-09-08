@@ -299,7 +299,7 @@ export interface AffData {
    * If true, compounds which are just repeated instances of a stem (e.g
    * `foofoo`) will be forbidden.
    */
-  CHECKCOMPOUNDUP: boolean
+  CHECKCOMPOUNDDUP: boolean
 
   /**
    * If true, compounding will be forbidden if the `REP` table can

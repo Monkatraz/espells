@@ -81,7 +81,7 @@ export class Aff implements AffData {
   COMPOUNDFORBIDFLAG?: Flag
   FORCEUCASE?: Flag
   CHECKCOMPOUNDCASE = false
-  CHECKCOMPOUNDUP = false
+  CHECKCOMPOUNDDUP = false
   CHECKCOMPOUNDREP = false
   CHECKCOMPOUNDTRIPLE = false
   CHECKCOMPOUNDPATTERN: Set<CompoundPattern> = new Set()
@@ -196,7 +196,7 @@ export class Aff implements AffData {
         case "NOSPLITSUGS":
         case "CHECKSHARPS":
         case "CHECKCOMPOUNDCASE":
-        case "CHECKCOMPOUNDUP":
+        case "CHECKCOMPOUNDDUP":
         case "CHECKCOMPOUNDREP":
         case "CHECKCOMPOUNDTRIPLE":
         case "SIMPLIFIEDTRIPLE":
