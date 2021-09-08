@@ -354,7 +354,7 @@ export class Suggest {
       caps: false,
       allowNoSuggest: false,
       affixForms: !compounds,
-      compoundForms: compounds
+      compoundForms: !!compounds
     })
   }
 
