@@ -1,7 +1,7 @@
 import type { Aff, Flags } from "../aff"
 import type { CompoundRule } from "../aff/compound-rule"
 import { CapType, CompoundPos } from "../constants"
-import type { Dic, Word } from "../dic"
+import { Dic, Word } from "../dic"
 import { lowercase } from "../util"
 import { decompose } from "./decompose"
 import { AffixForm, CompoundForm, isBadCompound } from "./forms"
@@ -293,7 +293,7 @@ export class LKWord {
     if (prev.length) {
       for (const homonym of this.dic.homonyms(this.word)) {
         const parts = [...prev, homonym]
-        const flagSets = flagsets(parts)
+        const flagSets = Word.flagSets(parts)
         if (rules.some(rule => rule.match(flagSets))) {
           yield [new AffixForm(this)]
         }
@@ -308,7 +308,7 @@ export class LKWord {
 
       for (const homonynm of this.dic.homonyms(beg.word)) {
         const parts = [...prev, homonynm]
-        const flagSets = flagsets(parts)
+        const flagSets = Word.flagSets(parts)
         const compoundRules = rules.filter(rule => rule.match(flagSets, true))
         if (compoundRules.length) {
           for (const rest of this.slice(pos).compoundsByRules(parts, compoundRules)) {
@@ -318,8 +318,4 @@ export class LKWord {
       }
     }
   }
-}
-
-function flagsets(words: Word[]) {
-  return new Set(words.filter(word => word.flags).map(word => new Set(word.flags!)))
 }

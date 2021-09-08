@@ -1,5 +1,5 @@
 import { iterate } from "iterare"
-import type { Aff, Flag, Flags } from "../aff"
+import type { Aff, Flag, Flags, FlagSet } from "../aff"
 import type { Prefix, Suffix } from "../aff/affix"
 import { RepPattern } from "../aff/rep-pattern"
 import { CapType, CONSTANTS as C } from "../constants"
@@ -180,5 +180,14 @@ export class Word {
     }
 
     return res
+  }
+
+  /**
+   * Utility function for generating a {@link FlagSet} from an array of words.
+   *
+   * @param words - The words to generate the flag set from.
+   */
+  static flagSets(words: Word[]): FlagSet {
+    return new Set(words.filter(word => word.flags).map(word => new Set(word.flags!)))
   }
 }
