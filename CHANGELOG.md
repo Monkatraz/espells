@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.1
+
+- Fix dependency issue.
+
 ## 0.4.0
 
 - Switched license to MPL 2.0.

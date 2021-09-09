@@ -106,7 +106,8 @@ export function validForm(form: AffixForm, word: LKWord, allowNoSuggest = true) 
   }
 
   if (aff.NEEDAFFIX) {
-    if (form.has(aff.NEEDAFFIX) || rootFlags.has(aff.NEEDAFFIX)) return false
+    if (form.has(aff.NEEDAFFIX)) return false
+    if (!form.hasAffixes && rootFlags.has(aff.NEEDAFFIX)) return false
   }
 
   if (form.prefix && !allFlags.has(form.prefix.flag)) return false
