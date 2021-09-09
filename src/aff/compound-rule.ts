@@ -74,7 +74,7 @@ export class CompoundRule {
 
     for (const rule of this.rules) {
       this.flags.add(rule.flag)
-      parts.push(rule.flag + quantifierChar(rule.quantifier))
+      parts.push(`(${rule.flag})${quantifierChar(rule.quantifier)}`)
     }
 
     this.regex = re`/^${parts.join("")}$/`
@@ -121,11 +121,11 @@ function parseCompoundRule(text: string, aff: Aff) {
     let quantifier = Quantifier.ONE
 
     if (text[i] === "(") {
-      flag += text[i]
+      i++ // move past the opening parenthesis
 
       while (text[i] !== ")" && i < text.length) {
-        i++
         flag += text[i]
+        i++
       }
 
       if (text[i + 1] === "?") {
@@ -148,7 +148,7 @@ function parseCompoundRule(text: string, aff: Aff) {
         break
       }
       case "long": {
-        flag += text.slice(i, i + 2)
+        flag += text.slice(i, i + 1)
         break
       }
       case "numeric": {
