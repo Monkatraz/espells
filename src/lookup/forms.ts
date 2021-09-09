@@ -156,15 +156,12 @@ export class AffixForm {
 
     if (includes(aff.COMPOUNDFLAG, allFlags)) return true
 
-    let passes = false
     // prettier-ignore
     switch(word.pos) {
-        case CompoundPos.BEGIN:  passes = includes(aff.COMPOUNDBEGIN,  allFlags)
-        case CompoundPos.MIDDLE: passes = includes(aff.COMPOUNDMIDDLE, allFlags)
-        case CompoundPos.END:    passes = includes(aff.COMPOUNDEND,    allFlags)
+        case CompoundPos.BEGIN:  return includes(aff.COMPOUNDBEGIN,  allFlags)
+        case CompoundPos.MIDDLE: return includes(aff.COMPOUNDMIDDLE, allFlags)
+        case CompoundPos.END:    return includes(aff.COMPOUNDEND,    allFlags)
       }
-
-    return passes
   }
 }
 
