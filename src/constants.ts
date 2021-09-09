@@ -40,7 +40,7 @@ export const CONSTANTS = {
    * 2. Flags
    * 3. Data (not split here, see {@link CONSTANTS.SPLIT_DATA_REGEX})
    */
-  SPLIT_WORD_REGEX: /^(.+?)(?:\/([\S\t]*?))?(?:(?:\s(?=.*?:.))(.+))?$/u,
+  SPLIT_WORD_REGEX: /^(.+?)(?:\/([\S\t]*?))?(?:(?:\s(?=[^\/]*?:.))(.+))?$/u,
 
   /**
    * `RegExp` used to split a `.dic` word data key-value. Groups:
