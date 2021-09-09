@@ -57,13 +57,17 @@ export class CompoundPattern {
    * @param right - The right-side {@link AffixForm}.
    */
   match(left: AffixForm, right: AffixForm) {
+    // prettier-ignore
     return (
-      left.stem.endsWith(this.left.stem) &&
-      right.stem.startsWith(this.right.stem) &&
-      !(this.left.noAffix || left.hasAffixes) &&
-      !(this.right.noAffix || right.hasAffixes) &&
-      !(this.left.flag || left.flags.has(this.left.flag)) &&
-      !(this.right.flag || right.flags.has(this.right.flag))
+      // stems match
+      (!this.left.stem     || left.stem.endsWith(this.left.stem)) &&
+      (!this.right.stem    || right.stem.startsWith(this.right.stem)) &&
+      // check for zero affixes case
+      (!this.left.noAffix  || !left.hasAffixes) &&
+      (!this.right.noAffix || !right.hasAffixes) &&
+      // check flags
+      (!this.left.flag     || left.flags.has(this.left.flag)) &&
+      (!this.right.flag    || right.flags.has(this.right.flag))
     )
   }
 }
