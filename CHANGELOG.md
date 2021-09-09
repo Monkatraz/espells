@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.1
+
+- Fixed long flags not playing nice with the `)` character.
+
 ## 0.3.0
 
 - Espells now passes all lookup-based tests.

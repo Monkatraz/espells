@@ -74,7 +74,9 @@ export class CompoundRule {
 
     for (const rule of this.rules) {
       this.flags.add(rule.flag)
-      parts.push(`(${rule.flag})${quantifierChar(rule.quantifier)}`)
+      // long flags might use the () characters, so we need to escape them
+      const flag = rule.flag.replaceAll(")", "\\)").replaceAll("(", "\\(")
+      parts.push(`(${flag})${quantifierChar(rule.quantifier)}`)
     }
 
     this.regex = re`/^${parts.join("")}$/`
