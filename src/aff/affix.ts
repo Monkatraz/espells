@@ -110,30 +110,28 @@ export abstract class Affix {
    * Determines if this affix is compatible with a set of flags, meaning
    * that the affix's flags are present in the flag set given.
    *
-   * @param flags - The flags to check against. Every flag this affix has
-   *   must be in this argument.
+   * @param required - The flags this affix must have.
    * @param forbidden - An optional set of flags which has the inverse
    *   effect, meaning that this affix's flags *cannot* be found in this set.
    */
-  compatible(flags: Flags, forbidden?: Flags) {
+  compatible(required: Flags, forbidden?: Flags) {
     // jump out early if there are no flags to check against
-    if (flags.size === 0 && (!forbidden || forbidden.size === 0)) return true
+    if (required.size === 0 && (!forbidden || forbidden.size === 0)) return true
 
-    // special case of no required flags, but maybe forbidden flags
-    if (flags.size === 0) {
-      if (forbidden?.size) {
-        for (const flag of this.flags) {
-          if (forbidden.has(flag)) return false
-        }
+    if (forbidden) {
+      for (const flag of this.flags) {
+        if (forbidden.has(flag)) return false
       }
-      return true
     }
 
-    // jump out early if it isn't possible for this affix to be compatible
-    if (flags.size < this.flags.size) return false
+    // special case of no required flags
+    if (required.size === 0) return true
 
-    for (const flag of this.flags) {
-      if (!flags.has(flag) || forbidden?.has(flag)) return false
+    // jump out early if it isn't possible for this affix to be compatible
+    if (this.flags.size < required.size) return false
+
+    for (const flag of required) {
+      if (!this.flags.has(flag)) return false
     }
 
     return true
