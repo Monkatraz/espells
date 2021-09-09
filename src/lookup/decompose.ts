@@ -37,27 +37,27 @@ export function* breakWord(aff: Aff, text: string, depth = 0): Iterable<string[]
  * Takes in a {@link LKWord} and yields a progressive decomposition of the
  * affixes and stems that can be found in the word.
  *
- * @param lkword - The word to decompose.
+ * @param word - The word to decompose.
  * @param flags - The {@link LKFlags} that restrain the possible forms of the word.
  */
-export function* decompose(aff: Aff, lkword: LKWord, flags: LKFlags) {
-  yield new AffixForm(lkword)
+export function* decompose(word: LKWord, flags: LKFlags) {
+  yield new AffixForm(word)
 
   const suffixAllowed =
-    lkword.pos === undefined || lkword.pos === CompoundPos.END || flags.suffix.size
+    word.pos === undefined || word.pos === CompoundPos.END || flags.suffix.size
 
   const prefixAllowed =
-    lkword.pos === undefined || lkword.pos === CompoundPos.BEGIN || flags.prefix.size
+    word.pos === undefined || word.pos === CompoundPos.BEGIN || flags.prefix.size
 
   if (suffixAllowed) {
-    yield* desuffix(aff, lkword.word, flags)
+    yield* desuffix(word.aff, word.word, flags)
   }
 
   if (prefixAllowed) {
-    for (const form of deprefix(aff, lkword.word, flags)) {
+    for (const form of deprefix(word.aff, word.word, flags)) {
       yield form
       if (suffixAllowed && form.prefix?.crossproduct) {
-        for (const form2 of desuffix(aff, form.stem, flags, true)) {
+        for (const form2 of desuffix(word.aff, form.stem, flags, true)) {
           yield form2.replace({ text: form.text, prefix: form.prefix })
         }
       }
@@ -76,7 +76,7 @@ export function* decompose(aff: Aff, lkword: LKWord, flags: LKFlags) {
  * @param flags - The flags used for filtering what is yielded.
  * @param crossproduct - If true, enables crossproduct checking.
  */
-export function* affixes(
+function* affixes(
   aff: Aff,
   type: AffixType,
   word: string,
@@ -112,7 +112,7 @@ export function* affixes(
  * @param crossproduct - If true, crossproduct checking will be enabled.
  * @param nested - Internal argument for handling recursion.
  */
-export function* desuffix(
+function* desuffix(
   aff: Aff,
   word: string,
   flags: LKFlags,
@@ -142,7 +142,7 @@ export function* desuffix(
  * @param flags - The flags used to filter valid {@link AffixForm}s.
  * @param nested - Internal argument for handling recursion.
  */
-export function* deprefix(
+function* deprefix(
   aff: Aff,
   word: string,
   flags: LKFlags,

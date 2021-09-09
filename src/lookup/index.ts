@@ -3,6 +3,8 @@ import type { Aff } from "../aff"
 import { CapType, CONSTANTS as C } from "../constants"
 import type { Dic } from "../dic"
 import { any, includes } from "../util"
+import { affixForms as affixes } from "./affixes"
+import { compoundForms as compounds } from "./compounds"
 import { breakWord } from "./decompose"
 import { LKWord } from "./lk-word"
 
@@ -137,7 +139,7 @@ export class Lookup {
       const word = lkword.to(variant)
 
       if (affixForms) {
-        for (const form of word.affixForms(allowNoSuggest)) {
+        for (const form of affixes(word, allowNoSuggest)) {
           if (
             form.inDictionary &&
             captype === CapType.ALL &&
@@ -151,7 +153,7 @@ export class Lookup {
         }
       }
 
-      if (compoundForms) yield* word.compoundForms(allowNoSuggest)
+      if (compoundForms) yield* compounds(word, allowNoSuggest)
     }
   }
 
