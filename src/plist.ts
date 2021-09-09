@@ -1,4 +1,6 @@
-// based on https://github.com/antimatter15/heapqueue.js/blob/master/heapqueue.js
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 
 /**
  * Wrapper around a normal array that uses a comparator function to ensure

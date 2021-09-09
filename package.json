@@ -1,8 +1,8 @@
 {
   "name": "espells",
-  "license": "MIT",
+  "license": "MPL 2.0",
   "description": "Pure JS/TS spellchecker, using Hunspell dictionaries. Based on Spylls.",
-  "version": "0.3.1",
+  "version": "0.4.0",
   "keywords": [
     "wikijump",
     "spell",
@@ -35,6 +35,7 @@
   },
   "bugs": "https://github.com/Monkatraz/espells/issues",
   "dependencies": {
+    "eslint-plugin-header": "^3.1.1",
     "iterare": "^1.2.1"
   },
   "devDependencies": {

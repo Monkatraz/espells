@@ -1,3 +1,7 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
+
 function useDefault(type, rules) {
   return Object.assign({}, ...rules.map(rule => ({ [rule]: type })))
 }
@@ -9,6 +13,10 @@ function prefixKeys(prefix, obj) {
   }
   return mappedObj
 }
+
+const MPL = ` This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/. `
 
 const rules = {
   code: {
@@ -52,7 +60,8 @@ const rules = {
       "prefer-exponentiation-operator"
     ]),
     "curly": ["warn", "multi-line"],
-    "@typescript-eslint/space-infix-ops": ["warn", { int32Hint: true }]
+    "@typescript-eslint/space-infix-ops": ["warn", { int32Hint: true }],
+    "header/header": ["error", "block", MPL, 2]
   },
 
   typescript: {
@@ -159,7 +168,7 @@ module.exports = {
 
   extends: ["plugin:compat/recommended", "plugin:import/typescript"],
 
-  plugins: ["@typescript-eslint", "import", "regexp", "tsdoc"],
+  plugins: ["@typescript-eslint", "import", "regexp", "tsdoc", "header"],
 
   parser: "@typescript-eslint/parser",
   parserOptions: {

@@ -83,4 +83,4 @@ npm run build
 
 ## License
 
-MIT licensed. See the [license file](LICENSE) for more details.
+MPL 2.0. See the [license file](LICENSE) for more details.

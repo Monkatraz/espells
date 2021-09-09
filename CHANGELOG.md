@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.4.0
+
+- Switched license to MPL 2.0.
+
+- Added MPL 2.0 license headers to files.
+
+- Cleaned up `lookup` modules, more functional code layout.
+
 ## 0.3.1
 
 - Fixed long flags not playing nice with the `)` character.
