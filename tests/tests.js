@@ -138,6 +138,37 @@ Special("French", async () => {
   spellchecker.suggest("Blueberry")
 })
 
+Special("Large Affix Dictionary (Hungarian)", async () => {
+  const aff = await fs.readFile("./tests/hu/index.aff", "utf-8");
+  const dic = await fs.readFile("./tests/hu/index.dic", "utf-8");
+  const spellchecker = new Espells({ aff, dic });
+  
+  const usedMemory = process.memoryUsage().heapUsed;
+
+  //Use less than 512MB
+  assert.ok(usedMemory < 1024 * 1024 * 512, "Exceeding maximum allowed memory!");
+
+  let word, startTime, isWordCorrect, executionTime;
+  
+  word = "béka";// valid word, means frog
+  startTime = performance.now();
+  isWordCorrect = spellchecker.lookup(word).correct;
+  executionTime = performance.now() - startTime;
+  //Check result
+  assert.ok(isWordCorrect === true, `Word \"${word}\" expected to be valid!`);
+  //Use less than 1000ms (it actualy uses only a few miliseconds, but check it for future errors)
+  assert.ok(executionTime < 1000)
+  
+  word = "békaart";// invalid word
+  startTime = performance.now();
+  isWordCorrect = spellchecker.lookup(word).correct;
+  executionTime = performance.now() - startTime;
+  //Check result
+  assert.ok(isWordCorrect === false, `Word \"${word}\" expected to be invalid!`);
+  //Use less than 1000ms (it actualy uses only a few miliseconds, but check it for future errors)
+  assert.ok(executionTime < 1000)
+})
+
 Base.run()
 Affixes.run()
 ExclusionFlags.run()
