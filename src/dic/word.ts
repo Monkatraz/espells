@@ -43,7 +43,7 @@ export class Word {
    *   treated as a "word" argument.
    * @param aff - {@link Aff} data to use.
    */
-  constructor(line: string, aff: Aff) {
+  constructor(line: string, private aff: Aff) {
     // a hack so that the split regex doesn't get confused with escapes
     line = line.replaceAll("\\/", "_||_")
 
@@ -101,25 +101,6 @@ export class Word {
         }
       }
     }
-
-    // precalculating the affixes here improves performance for ngram suggestions
-    if (this.flags) {
-      const prefixes = iterate(this.flags)
-        .filter(flag => aff.PFX.has(flag))
-        .map(flag => aff.PFX.get(flag)!)
-        .flatten()
-        .filter(prefix => prefix.relevant(this.stem))
-        .toSet()
-
-      const suffixes = iterate(this.flags)
-        .filter(flag => aff.SFX.has(flag))
-        .map(flag => aff.SFX.get(flag)!)
-        .flatten()
-        .filter(suffix => suffix.relevant(this.stem))
-        .toSet()
-
-      this.affixes = { prefixes, suffixes }
-    }
   }
 
   /**
@@ -141,13 +122,29 @@ export class Word {
   forms(similarTo?: string) {
     const res: string[] = [this.stem]
 
-    if (!this.affixes) return res
+    if (!this.flags) return res
 
-    const suffixes = iterate(this.affixes.suffixes)
+    const affixes = {
+      prefixes: iterate(this.flags)
+        .filter(flag => this.aff.PFX.has(flag))
+        .map(flag => this.aff.PFX.get(flag)!)
+        .flatten()
+        .filter(prefix => prefix.relevant(this.stem))
+        .toSet(),
+
+      suffixes: iterate(this.flags)
+        .filter(flag => this.aff.SFX.has(flag))
+        .map(flag => this.aff.SFX.get(flag)!)
+        .flatten()
+        .filter(suffix => suffix.relevant(this.stem))
+        .toSet(),
+    };
+
+    const suffixes = iterate(affixes.suffixes)
       .filter(suffix => (similarTo ? similarTo.endsWith(suffix.add) : true))
       .toArray()
 
-    const prefixes = iterate(this.affixes.prefixes)
+    const prefixes = iterate(affixes.prefixes)
       .filter(prefix => (similarTo ? similarTo.startsWith(prefix.add) : true))
       .toArray()
 
